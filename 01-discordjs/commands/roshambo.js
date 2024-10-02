@@ -33,16 +33,13 @@ export async function execute(interaction) {
     .setEmoji('✂️');
 
   // Organizing buttons in a row using ActionRowBuilder
-  const row = new ActionRowBuilder().addComponents(
-    rockButton,
-    paperButton,
-    scissorsButton
-  );
+  const row = new ActionRowBuilder().addComponents(rockButton, paperButton, scissorsButton);
 
   // Sending the initial interaction message with attached buttons
-  await interaction.reply({
+  const message = await interaction.reply({
     content: 'Roshambo!', // Message content
     components: [row], // Attaching the button row to the message
+    fetchReply: true, // Fetch the message object
   });
 
   // Filter function to ensure only the user who initiated the interaction can respond
@@ -51,7 +48,7 @@ export async function execute(interaction) {
   };
 
   // Awaiting user's button interaction (waiting max 10 seconds)
-  const buttonInteraction = await interaction.channel
+  const buttonInteraction = await message
     .awaitMessageComponent({
       filter,
       componentType: ComponentType.Button,
@@ -60,8 +57,12 @@ export async function execute(interaction) {
     .catch((err) => {
       // Handling the scenario where user doesn’t respond in time
       interaction.followUp('You took too long! Game over.');
+      return;
     });
+
   if (!buttonInteraction) return; // Exit function if no valid interaction is collected
+
+  // Proceed with the game logic...
 
   // Game logic follows...
   const userChoice = buttonInteraction.customId;
