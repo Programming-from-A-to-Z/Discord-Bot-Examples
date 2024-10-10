@@ -1,7 +1,9 @@
 // Import the necessary discord.js classes using ES6 syntax
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { config } from 'dotenv';
+import * as fs from 'fs';
 
+// Import custom command modules
 import * as choochoo from './commands/choochoo.js';
 import * as gif from './commands/gif.js';
 import * as randomwalk from './commands/randomwalk.js';
@@ -10,34 +12,41 @@ import * as roshambo from './commands/roshambo.js';
 // Call the config() function on dotenv to load the environmental variables from the .env file
 config();
 
+// Load heart count from data.json file and initialize variables
+let data = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
+let heartCount = data.hearts;
+let danChannel; // To store the reference to the specific channel
+
 // Create a new Discord client instance and define its intents
 // Intents are subscriptions to specific events and define what events your bot will receive updates for
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMessageReactions,
   ],
 });
 
-// Event listener that executes once when the client successfully connects to Discord
-client.once(Events.ClientReady, readyDiscord);
-
-// Login to Discord with your bot's token (stored in the .env file)
+// Log in to Discord with your bot's token (stored in the .env file)
 client.login(process.env.TOKEN);
 
-// A function executed when the Discord client is ready and connected
-function readyDiscord() {
-  console.log('💖 Logged in as', client.user.tag);
-  startTalking();
-}
+// Event listener that executes once when the client successfully connects to Discord
+client.once(Events.ClientReady, async (readyClient) => {
+  console.log(`💖 Logged in as ${readyClient.user.tag}`);
+
+  // Fetch the specific channel and store it in danChannel
+  danChannel = await client.channels.fetch('1291072367035940957');
+
+  // Start the hourly heartbeat message
+  startHeartBeat();
+});
 
 // Event listener for when a slash command is executed
 client.on(Events.InteractionCreate, async (interaction) => {
-  // Ensure interaction is a command before proceeding
   if (!interaction.isCommand()) return;
 
-  // Command execution mapping
+  // Command execution mapping for custom commands
   if (interaction.commandName === 'choochoo') {
     await choochoo.execute(interaction);
   } else if (interaction.commandName === 'gif') {
@@ -49,41 +58,52 @@ client.on(Events.InteractionCreate, async (interaction) => {
   }
 });
 
-// Function that sends a message to a specific channel every 60 minutes
-function startTalking() {
-  // Retrieve the desired channel using its ID
-  const channel = client.channels.cache.get('1139569830761070651');
+// Event listener for handling any received message
+client.on(Events.MessageCreate, (message) => {
+  if (message.author.bot) return; // Ignore bot messages
+  if (message.channelId !== '1291072367035940957') return; // Only respond in specific channel
 
-  // Send a message to the channel every 60*60*1000 milliseconds (1 hour)
-  setInterval(() => {
-    channel.send('Hello, this is your bot speaking!');
-  }, 60 * 60 * 1000);
-}
+  // If there are any digits in the message, react with a number emoji
+  if (message.content.match(/\d+/)) {
+    message.react('🔢');
+    return;
+  }
+
+  // Respond to a message asking how it makes the user feel
+  message.reply(`How does ${message.content} make you feel?`);
+});
 
 // Event listener for when a reaction is added to a message
 client.on(Events.MessageReactionAdd, (reaction, user) => {
-  // Retrieve the emoji used for the reaction
-  let emoji = reaction.emoji.name;
+  if (user.bot) return; // Ignore bot reactions
 
-  // If the emoji is custom, format it accordingly
+  // Check if the reaction is a heart emoji
+  if (reaction.emoji.name === '❤️') {
+    heartCount++; // Increment heart count
+    fs.writeFileSync('data.json', JSON.stringify({ hearts: heartCount })); // Save updated count to file
+    console.log(`Heart count updated to ${heartCount}`);
+    return;
+  }
+
+  // Handle and format custom emoji reactions
+  let emoji = reaction.emoji.name;
   if (reaction.emoji.id) {
     emoji = `<:${reaction.emoji.name}:${reaction.emoji.id}>`;
   }
 
-  // Retrieve the channel using its ID and send a message indicating the user and emoji
-  const channel = client.channels.cache.get('1139569830761070651');
-  channel.send(`${user.username} reacted with ${emoji}`);
+  // Send a message to the channel indicating the user and emoji used
+  danChannel.send(`Thank you <@${user.id}> for reacting with ${emoji}!`);
 });
 
-// Event listener for handling any received message
-client.on(Events.MessageCreate, (message) => {
-  // If the message author is not a bot and the bot is mentioned in the message
-  if (!message.author.bot && message.mentions.has(client.user)) {
-    // Remove the bot mention from the message content
-    const mention = /<@.*?\s/;
-    const content = message.content.replace(mention, '').trim();
+// Function to start the heart count message every hour
+function startHeartBeat() {
+  postHeartCount(); // Initial post
+  setInterval(postHeartCount, 60 * 60 * 1000); // Hourly interval
+}
 
-    // Respond to the message
-    message.reply(`How does ${content} make you feel?`);
-  }
-});
+// Function that posts the current heart count in the specific channel
+function postHeartCount() {
+  danChannel.send(`❤️❤️❤️ I have ${heartCount} hearts ❤️❤️❤️`);
+}
+
+console.log('Bot setup complete!');

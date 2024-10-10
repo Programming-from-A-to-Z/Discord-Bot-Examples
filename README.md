@@ -12,6 +12,7 @@ Create a new Node.js project and install necessary dependencies.
 $ npm init
 $ npm install discord.js dotenv
 ```
+
 Add a property `"type": "module"` in your `package.json` file in order to use ES6 module import syntax.
 
 ### 2. Create a Discord Application
@@ -62,7 +63,7 @@ config();
 
 // Create a new client instance
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds]
+  intents: [GatewayIntentBits.Guilds],
 });
 
 // When the client is ready, run this code (only once)
@@ -102,7 +103,7 @@ export async function execute(interaction) {
 
 ## 9. Deploy the commands
 
-Create `deploy-commands.js` and copy the [example code](/01-discordjs/deploy-commands.js). Then run it!
+Create `deploy-commands.js` and copy the [example code](/deploy-commands.js). Then run it!
 
 ```sh
 node deploy-commands.js
@@ -144,3 +145,70 @@ node bot.js
 - [Discord.js Guide](https://discordjs.guide/)
 - [Discord.js Documentation](https://discord.js.org/#/docs/main/stable/general/welcome)
 - [Discord Developer Portal](https://discord.com/developers/applications/)
+
+## Additional Bot Features
+
+The bot includes additional features requiring extra permissions and intents. To use these you'll have to make sure you select the permissions on the OAuth page as well as enable the "read message content" option in the Discord Developer Portal.
+
+- `GuildMessages` - For receiving messages.
+- `GuildMessageReactions` - For handling emoji reactions.
+- `MessageContent` - Allows the bot to access message content for more interactive responses.
+
+### Features
+
+#### 1. Posting GIFs from Tenor API
+
+The `/gif` command fetches a GIF from the Tenor API and embeds it in the chat. You can customize the search term with a `keywords` option. To get started with Tenor, add an API key to `.env`:
+
+```
+TENORKEY=your_tenor_api_key
+```
+
+#### 2. Creating Random Walk Images with Canvas
+
+The `/randomwalk` command generates an image with random movements using the `canvas` library.
+
+```javascript
+import { createCanvas } from 'canvas';
+```
+
+#### 3. Rock Paper Scissors Game
+
+Use `/roshambo` to play Rock-Paper-Scissors. The bot responds with interactive buttons, allowing you to pick your choice while it randomly picks for itself.
+
+#### 4. Message Listening and Reactions
+
+The bot can listen for messages in a specified channel and respond to messages with text or reactions. For example, if a message contains digits, the bot reacts with a number emoji.
+
+```javascript
+client.on(Events.MessageCreate, (message) => {
+  if (message.content.match(/\d+/)) {
+    message.react('🔢');
+  }
+});
+```
+
+#### 5. Emoji Reaction Tracking
+
+The bot tracks emoji reactions and updates a heart count when users react with ❤️. It also saves the count to a JSON file so it persists even if the bot restarts.
+
+```javascript
+client.on(Events.MessageReactionAdd, (reaction, user) => {
+  if (reaction.emoji.name === '❤️') {
+    heartCount++;
+    fs.writeFileSync('data.json', JSON.stringify({ hearts: heartCount }));
+  }
+});
+```
+
+#### 6. Heartbeat Messages
+
+The bot can send periodic updates in a specified channel, such as a heartbeat message showing the total ❤️ count. This is done with `setInterval` to create timed posts.
+
+```javascript
+function startHeartBeat() {
+  setInterval(() => {
+    danChannel.send(`❤️ I have ${heartCount} hearts ❤️`);
+  }, 60 * 60 * 1000); // Posts every hour
+}
+```
