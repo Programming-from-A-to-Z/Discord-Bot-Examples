@@ -36,7 +36,7 @@ client.once(Events.ClientReady, async (readyClient) => {
   console.log(`💖 Logged in as ${readyClient.user.tag}`);
 
   // Fetch the specific channel and store it in danChannel
-  danChannel = await client.channels.fetch('1291072367035940957');
+  danChannel = await client.channels.fetch('1412592208196010115');
 
   // Start the hourly heartbeat message
   startHeartBeat();

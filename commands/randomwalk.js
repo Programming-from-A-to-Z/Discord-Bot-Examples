@@ -3,9 +3,7 @@ import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
 import { createCanvas } from 'canvas';
 
 // Command Builder export
-export const data = new SlashCommandBuilder()
-  .setName('randomwalk')
-  .setDescription('Generates a random walk image!');
+export const data = new SlashCommandBuilder().setName('randomwalk').setDescription('Generates a random walk image!');
 
 // Execute function export
 export async function execute(interaction) {
