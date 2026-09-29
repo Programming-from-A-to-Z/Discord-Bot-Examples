@@ -1,6 +1,6 @@
 // Importing modules using ES6 syntax
 import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
-import { createCanvas } from 'canvas';
+import { createCanvas } from '@napi-rs/canvas';
 
 // Command Builder export
 export const data = new SlashCommandBuilder().setName('randomwalk').setDescription('Generates a random walk image!');

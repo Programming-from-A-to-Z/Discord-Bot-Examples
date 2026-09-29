@@ -1,6 +1,5 @@
 // Import the necessary discord.js classes using ES6 syntax
 import { Client, Events, GatewayIntentBits } from 'discord.js';
-import { config } from 'dotenv';
 import * as fs from 'fs';
 
 // Import custom command modules
@@ -9,8 +8,8 @@ import * as gif from './commands/gif.js';
 import * as randomwalk from './commands/randomwalk.js';
 import * as roshambo from './commands/roshambo.js';
 
-// Call the config() function on dotenv to load the environmental variables from the .env file
-config();
+// Load the environment variables from the .env file (built into Node.js, no extra package needed)
+process.loadEnvFile();
 
 // Load heart count from data.json file and initialize variables
 let data = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
@@ -44,7 +43,7 @@ client.once(Events.ClientReady, async (readyClient) => {
 
 // Event listener for when a slash command is executed
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isCommand()) return;
+  if (!interaction.isChatInputCommand()) return;
 
   // Command execution mapping for custom commands
   if (interaction.commandName === 'choochoo') {

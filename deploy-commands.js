@@ -1,12 +1,11 @@
 // Slash Commands Deployment Script
-// https://discordjs.guide/creating-your-bot/command-deployment.html#guild-commands/
+// https://discordjs.guide/legacy/app-creation/deploying-commands
 
 // Importing modules using ES6 syntax
 import { REST, Routes } from 'discord.js';
-import { config } from 'dotenv';
 import fs from 'node:fs';
 
-config(); // Using dotenv config function directly
+process.loadEnvFile(); // Load environment variables from .env
 
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter((file) => file.endsWith('.js'));

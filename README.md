@@ -1,6 +1,6 @@
 # Discord Bot Examples
 
-This repository provides examples and a step-by-step guide on how to create a simple Discord bot using [discord.js](https://discord.js.org/#/).
+This repository provides examples and a step-by-step guide on how to create a simple Discord bot using [discord.js](https://discord.js.org/).
 
 ## Steps to Create Your Bot!
 
@@ -10,10 +10,12 @@ Create a new Node.js project and install necessary dependencies.
 
 ```sh
 $ npm init
-$ npm install discord.js dotenv
+$ npm install discord.js
 ```
 
 Add a property `"type": "module"` in your `package.json` file in order to use ES6 module import syntax.
+
+These examples use Node.js 22 or newer, which includes built-in support for loading `.env` files (no `dotenv` package needed).
 
 ### 2. Create a Discord Application
 
@@ -57,9 +59,9 @@ Create `bot.js` (or `index.js`) and paste this code:
 
 ```javascript
 import { Client, Events, GatewayIntentBits } from 'discord.js';
-import { config } from 'dotenv';
 
-config();
+// Load environment variables from .env
+process.loadEnvFile();
 
 // Create a new client instance
 const client = new Client({
@@ -121,7 +123,7 @@ import * as choochoo from './commands/choochoo.js';
 client.on(Events.InteractionCreate, handleInteraction);
 
 async function handleInteraction(interaction) {
-  if (!interaction.isCommand()) return;
+  if (!interaction.isChatInputCommand()) return;
   if (interaction.commandName === 'choochoo') {
     await choochoo.execute(interaction);
   }
@@ -137,13 +139,13 @@ node bot.js
 ## Recap of the code elements
 
 - `commands/choochoo.js`: Defines a simple slash command.
-- `index.js`: Handles interactions with Discord and executes commands.
+- `bot.js`: Handles interactions with Discord and executes commands.
 - `deploy-commands.js`: Script to register slash commands with Discord API.
 
 ## Additional Resources
 
 - [Discord.js Guide](https://discordjs.guide/)
-- [Discord.js Documentation](https://discord.js.org/#/docs/main/stable/general/welcome)
+- [Discord.js Documentation](https://discord.js.org/docs)
 - [Discord Developer Portal](https://discord.com/developers/applications/)
 
 ## Additional Bot Features
@@ -156,20 +158,24 @@ The bot includes additional features requiring extra permissions and intents. To
 
 ### Features
 
-#### 1. Posting GIFs from Tenor API
+#### 1. Posting GIFs from GIPHY API
 
-The `/gif` command fetches a GIF from the Tenor API and embeds it in the chat. You can customize the search term with a `keywords` option. To get started with Tenor, add an API key to `.env`:
+The `/gif` command fetches a GIF from the [GIPHY API](https://developers.giphy.com/docs/api/) and embeds it in the chat. You can customize the search term with a `keywords` option. (This example previously used Tenor, but Google shut down the Tenor API in June 2026.) To get started, create a free API key on the [GIPHY Developer Dashboard](https://developers.giphy.com/dashboard/) and add it to `.env`:
 
 ```
-TENORKEY=your_tenor_api_key
+GIPHYKEY=your_giphy_api_key
 ```
 
 #### 2. Creating Random Walk Images with Canvas
 
-The `/randomwalk` command generates an image with random movements using the `canvas` library.
+The `/randomwalk` command generates an image with random movements using the [`@napi-rs/canvas`](https://www.npmjs.com/package/@napi-rs/canvas) library. It works like the HTML canvas API and installs prebuilt binaries, so there are no system libraries to set up.
+
+```sh
+$ npm install @napi-rs/canvas
+```
 
 ```javascript
-import { createCanvas } from 'canvas';
+import { createCanvas } from '@napi-rs/canvas';
 ```
 
 #### 3. Rock Paper Scissors Game
