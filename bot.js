@@ -35,7 +35,7 @@ client.once(Events.ClientReady, async (readyClient) => {
   console.log(`💖 Logged in as ${readyClient.user.tag}`);
 
   // Fetch the specific channel and store it in danChannel
-  danChannel = await client.channels.fetch('1424912904674873374');
+  danChannel = await client.channels.fetch('1554586569845907571');
 
   // Start the hourly heartbeat message
   startHeartBeat();
@@ -60,7 +60,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 // Event listener for handling any received message
 client.on(Events.MessageCreate, (message) => {
   if (message.author.bot) return; // Ignore bot messages
-  if (message.channelId !== '1291072367035940957') return; // Only respond in specific channel
+  if (message.channelId !== '1554586569845907571') return; // Only respond in specific channel
 
   // If there are any digits in the message, react with a number emoji
   if (message.content.match(/\d+/)) {
