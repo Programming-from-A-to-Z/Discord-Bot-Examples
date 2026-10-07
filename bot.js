@@ -62,14 +62,18 @@ client.on(Events.MessageCreate, (message) => {
   if (message.author.bot) return; // Ignore bot messages
   if (message.channelId !== '1554586569845907571') return; // Only respond in specific channel
 
+  // Remove any mentions (like <@1234>)
+  const text = message.content.replace(/<@!?\d+>/g, '').trim();
+
   // If there are any digits in the message, react with a number emoji
-  if (message.content.match(/\d+/)) {
+  if (text.match(/\d+/)) {
     message.react('🔢');
-    return;
   }
 
-  // Respond to a message asking how it makes the user feel
-  message.reply(`How does ${message.content} make you feel?`);
+  // Only reply if the bot is mentioned
+  if (message.mentions.users.has(client.user.id)) {
+    message.reply(`How does ${text} make you feel?`);
+  }
 });
 
 // Event listener for when a reaction is added to a message

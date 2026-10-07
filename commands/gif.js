@@ -4,9 +4,7 @@ import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 export const data = new SlashCommandBuilder()
   .setName('gif')
   .setDescription('Searches GIPHY for gifs!')
-  .addStringOption((option) =>
-    option.setName('keywords').setDescription('The keywords to search GIPHY with')
-  );
+  .addStringOption((option) => option.setName('keywords').setDescription('The keywords to search GIPHY with'));
 
 // Execute function to interact with GIPHY API and reply with a GIF
 export async function execute(interaction) {
@@ -35,7 +33,8 @@ export async function execute(interaction) {
     .setColor('#0099ff')
     .setTitle(`GIF from GIPHY: ${keywords}`)
     .setURL(gif.url)
-    .setImage(gif.images.original.url)
+    // Use the downsized (under 2MB)
+    .setImage(gif.images.downsized.url)
     .setFooter({ text: 'Powered by GIPHY' })
     .setAuthor({ name: 'A2Z Bot' })
     .setThumbnail(gif.images.fixed_height_small.url);
